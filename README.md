@@ -35,6 +35,14 @@ npm run preview
 
 Der fertige Web-Build wird in `dist/` erzeugt.
 
+## Windows-App und Installer
+
+```bash
+npm run build:desktop
+```
+
+Der installierbare Windows-Setup-Assistent wird anschließend unter `release/LunaSuite Launcher-Setup-<version>.exe` erzeugt. Der Installer legt auf Wunsch Verknüpfungen auf dem Desktop und im Startmenü an.
+
 ## Struktur
 
 ```text
