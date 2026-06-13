@@ -27,7 +27,7 @@ export function Header({
   onOpenMenu
 }: Props) {
   return (
-    <header className={`mb-10 flex flex-col gap-6 ${hideCopy ? "items-center" : "xl:flex-row xl:items-start xl:justify-between"}`}>
+    <header className={`mb-8 flex flex-col gap-6 ${hideCopy ? "items-center" : "xl:flex-row xl:items-start xl:justify-between"}`}>
       <div className={`min-w-0 items-start gap-3 ${hideCopy ? "absolute left-5 top-6 flex lg:hidden" : "flex"}`}>
         <button
           className="mt-1 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-white/70 lg:hidden"
@@ -44,7 +44,7 @@ export function Header({
 
       <div className={`flex flex-col gap-3 sm:flex-row ${hideCopy ? "w-full justify-center" : ""}`}>
         {showSearch ? (
-          <label className={`flex h-10 min-w-0 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.035] px-3 text-white/35 ${hideCopy ? "w-full max-w-md" : "sm:w-64"}`}>
+          <label className={`flex h-10 min-w-0 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.035] px-3 text-white/35 ${hideCopy ? "w-full max-w-[470px]" : "sm:w-64"}`}>
             <Search size={16} />
             <input
               className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/28"

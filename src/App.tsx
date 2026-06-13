@@ -1,4 +1,4 @@
-import { CheckCircle2, ExternalLink, FileText, Info, Sparkles, X } from "lucide-react";
+import { CheckCircle2, ChevronDown, ExternalLink, FileText, HelpCircle, Info, LogOut, Settings, Sparkles, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AppCard } from "./components/AppCard";
 import { AppPage } from "./components/AppPage";
@@ -29,10 +29,11 @@ export default function App() {
   const [activeAppId, setActiveAppId] = useState<string | null>(null);
   const [apps, setApps] = useState<LauncherApp[]>(() => appRegistry.map((app) => ({ ...app })));
   const [menuOpen, setMenuOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [checking, setChecking] = useState(false);
-  const [launcherVersion, setLauncherVersion] = useState("0.0.11");
+  const [launcherVersion, setLauncherVersion] = useState("0.0.12");
   const [launcherUpdateStatus, setLauncherUpdateStatus] = useState<LauncherUpdateStatus | null>(null);
   const [lastChecked, setLastChecked] = useState("Noch nicht geprüft");
   const [tasks, setTasks] = useState<InstallationTask[]>([]);
@@ -179,7 +180,15 @@ export default function App() {
           onClose={() => setMenuOpen(false)}
         />
 
-        <main className="content-scroll min-w-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#0d0d0e] px-5 py-6 sm:px-8 lg:rounded-[24px] lg:border lg:border-white/[0.07] lg:px-11 lg:py-10 xl:px-12">
+        <main className="content-scroll relative min-w-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#0d0d0e] px-5 py-5 sm:px-7 lg:rounded-[24px] lg:border lg:border-white/[0.07] lg:px-8 lg:py-6 xl:px-9">
+          <AccountMenu
+            open={accountOpen}
+            onToggle={() => setAccountOpen((current) => !current)}
+            onNavigate={(page) => {
+              setAccountOpen(false);
+              navigate(page);
+            }}
+          />
           {activeApp ? (
             <AppPage
               app={activeApp}
@@ -207,7 +216,7 @@ export default function App() {
 
               {showAppGrid ? (
                 <>
-                  <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="mb-5 grid gap-4 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
                     <h2 className="text-lg font-semibold tracking-[-0.025em]">{activePage === "overview" ? "Deine Apps" : "App-Bibliothek"}</h2>
                     <div className="scrollbar-hidden flex gap-1 overflow-x-auto rounded-xl border border-white/[0.08] bg-white/[0.025] p-1">
                       {([["all", "Alle"], ["installed", "Installiert"], ["updates", "Updates"], ["coming-soon", "Coming Soon"]] as const).map(([id, label]) => (
@@ -216,8 +225,9 @@ export default function App() {
                         </button>
                       ))}
                     </div>
+                    <div aria-hidden="true" />
                   </div>
-                  <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                  <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                     {filteredApps.map((app) => <AppCard key={app.id} app={app} progress={tasks.find((task) => task.appId === app.id)?.progress} onAction={handleAppAction} />)}
                   </div>
                   {filteredApps.length === 0 ? <div className="mt-4 rounded-2xl border border-dashed border-white/10 px-6 py-14 text-center text-sm text-white/38">Keine Apps für diesen Filter gefunden.</div> : null}
@@ -247,6 +257,68 @@ export default function App() {
       <LauncherUpdatePrompt />
       {releaseNotesOpen ? <ReleaseNotesModal apps={apps} onClose={() => setReleaseNotesOpen(false)} /> : null}
     </div>
+  );
+}
+
+function AccountMenu({
+  open,
+  onToggle,
+  onNavigate
+}: {
+  open: boolean;
+  onToggle: () => void;
+  onNavigate: (page: NavigationId) => void;
+}) {
+  return (
+    <div className="absolute right-5 top-4 z-30 sm:right-7 lg:right-8">
+      <button
+        className="flex items-center gap-2 rounded-xl px-2 py-1.5 text-left transition hover:bg-white/[0.055]"
+        onClick={onToggle}
+        aria-expanded={open}
+        aria-label="Account-Menü öffnen"
+      >
+        <span className="grid h-8 w-8 place-items-center rounded-full border border-white/14 bg-white/[0.07] text-xs font-medium">AM</span>
+        <ChevronDown size={14} className={`text-white/42 transition ${open ? "rotate-180" : ""}`} />
+      </button>
+
+      {open ? (
+        <div className="absolute right-0 mt-2 w-64 overflow-hidden rounded-2xl border border-white/[0.09] bg-[#151517] shadow-2xl">
+          <div className="border-b border-white/[0.07] px-4 py-4">
+            <p className="text-sm font-medium">Alex Müller</p>
+            <p className="mt-1 text-xs text-white/38">alex@lunasuite.de</p>
+          </div>
+          <div className="p-2">
+            <AccountAction icon={Settings} label="Einstellungen" onClick={() => onNavigate("settings")} />
+            <AccountAction icon={HelpCircle} label="Hilfe & Support" onClick={() => onNavigate("support")} />
+            <AccountAction icon={LogOut} label="Abmelden" muted onClick={() => {}} />
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function AccountAction({
+  icon: Icon,
+  label,
+  muted = false,
+  onClick
+}: {
+  icon: typeof Settings;
+  label: string;
+  muted?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      className={`flex h-10 w-full items-center gap-3 rounded-xl px-3 text-sm transition hover:bg-white/[0.06] ${
+        muted ? "text-white/35" : "text-white/70 hover:text-white"
+      }`}
+      onClick={onClick}
+    >
+      <Icon size={16} />
+      {label}
+    </button>
   );
 }
 

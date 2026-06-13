@@ -1,9 +1,7 @@
 import {
-  ChevronDown,
   Download,
   HelpCircle,
   Home,
-  Moon,
   PackageCheck,
   RefreshCw,
   Settings,
@@ -46,9 +44,7 @@ export function Sidebar({ active, activeAppId, apps, open, onNavigate, onSelectA
       >
         <div className="mb-10 flex items-center justify-between px-2">
           <button className="flex items-center gap-3" onClick={() => navigate("overview")}>
-            <span className="grid h-10 w-10 place-items-center rounded-full bg-white text-black">
-              <Moon size={23} fill="currentColor" />
-            </span>
+            <img className="h-11 w-11 rounded-[13px] object-cover" src="./lunasuite-logo.png" alt="" />
             <span className="text-xl font-semibold tracking-[-0.04em]">LunaSuite</span>
           </button>
           <button className="text-white/45 lg:hidden" onClick={onClose} aria-label="Navigation schließen">
@@ -88,7 +84,7 @@ export function Sidebar({ active, activeAppId, apps, open, onNavigate, onSelectA
         </div>
 
         <div className="mt-auto pt-5">
-          <div className="flex items-center justify-center gap-7">
+          <div className="flex items-center justify-start gap-2 px-2">
             <IconNavButton
               active={active === "settings"}
               label="Einstellungen"
@@ -102,15 +98,6 @@ export function Sidebar({ active, activeAppId, apps, open, onNavigate, onSelectA
               onClick={() => navigate("support")}
             />
           </div>
-
-          <button className="mt-5 flex w-full items-center gap-3 px-2 pt-3 text-left">
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-white/15 bg-white/[0.07] text-sm font-medium">AM</span>
-            <span className="min-w-0 flex-1">
-              <span className="block truncate text-sm font-medium">Alex Müller</span>
-              <span className="mt-0.5 block truncate text-xs text-white/38">alex@lunasuite.de</span>
-            </span>
-            <ChevronDown size={15} className="text-white/42" />
-          </button>
         </div>
       </aside>
     </>
