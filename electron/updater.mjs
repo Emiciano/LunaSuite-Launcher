@@ -43,7 +43,7 @@ export function setupLauncherUpdater({ emit }) {
   });
   autoUpdater.on("update-downloaded", (info) => {
     emit({ status: "downloaded", version: info.version });
-    setTimeout(() => autoUpdater.quitAndInstall(false, true), 1_200);
+    setTimeout(() => autoUpdater.quitAndInstall(true, true), 1_200);
   });
   autoUpdater.on("error", (error) => {
     emit({ status: "error", message: error?.message || String(error) });

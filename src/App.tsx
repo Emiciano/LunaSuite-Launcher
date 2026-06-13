@@ -32,7 +32,7 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [checking, setChecking] = useState(false);
-  const [launcherVersion, setLauncherVersion] = useState("0.0.7");
+  const [launcherVersion, setLauncherVersion] = useState("0.0.8");
   const [launcherUpdateStatus, setLauncherUpdateStatus] = useState<LauncherUpdateStatus | null>(null);
   const [lastChecked, setLastChecked] = useState("Noch nicht geprüft");
   const [tasks, setTasks] = useState<InstallationTask[]>([]);
