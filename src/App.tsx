@@ -32,7 +32,7 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [checking, setChecking] = useState(false);
-  const [launcherVersion, setLauncherVersion] = useState("0.0.10");
+  const [launcherVersion, setLauncherVersion] = useState("0.0.11");
   const [launcherUpdateStatus, setLauncherUpdateStatus] = useState<LauncherUpdateStatus | null>(null);
   const [lastChecked, setLastChecked] = useState("Noch nicht geprüft");
   const [tasks, setTasks] = useState<InstallationTask[]>([]);
@@ -168,7 +168,7 @@ export default function App() {
 
   return (
     <div className="h-screen overflow-hidden bg-[#050505] text-white lg:p-3">
-      <div className="mx-auto flex h-full max-w-[1660px] overflow-hidden bg-[#0b0b0c] lg:rounded-[24px]">
+      <div className="mx-auto flex h-full max-w-[1660px] overflow-hidden bg-[#050505] lg:rounded-[24px]">
         <Sidebar
           active={activePage}
           activeAppId={activeAppId}
@@ -179,7 +179,7 @@ export default function App() {
           onClose={() => setMenuOpen(false)}
         />
 
-        <main className="content-scroll min-w-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#0d0d0e] px-5 py-6 sm:px-8 lg:rounded-l-[24px] lg:px-11 lg:py-10 xl:px-12">
+        <main className="content-scroll min-w-0 flex-1 overflow-y-auto overflow-x-hidden bg-[#0d0d0e] px-5 py-6 sm:px-8 lg:rounded-[24px] lg:border lg:border-white/[0.07] lg:px-11 lg:py-10 xl:px-12">
           {activeApp ? (
             <AppPage
               app={activeApp}

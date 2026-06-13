@@ -40,7 +40,7 @@ export function Sidebar({ active, activeAppId, apps, open, onNavigate, onSelectA
     <>
       {open ? <button className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm lg:hidden" onClick={onClose} aria-label="Navigation schließen" /> : null}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-[292px] flex-col bg-[#09090a] px-5 py-6 transition-transform duration-200 lg:static lg:z-auto lg:w-[318px] lg:translate-x-0 lg:px-6 lg:py-7 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-[292px] flex-col bg-[#050505] px-5 py-6 transition-transform duration-200 lg:static lg:z-auto lg:w-[318px] lg:translate-x-0 lg:px-6 lg:py-7 ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
