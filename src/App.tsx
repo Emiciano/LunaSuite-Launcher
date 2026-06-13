@@ -32,7 +32,7 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [checking, setChecking] = useState(false);
-  const [launcherVersion, setLauncherVersion] = useState("0.0.9");
+  const [launcherVersion, setLauncherVersion] = useState("0.0.10");
   const [launcherUpdateStatus, setLauncherUpdateStatus] = useState<LauncherUpdateStatus | null>(null);
   const [lastChecked, setLastChecked] = useState("Noch nicht geprüft");
   const [tasks, setTasks] = useState<InstallationTask[]>([]);
@@ -168,7 +168,7 @@ export default function App() {
 
   return (
     <div className="h-screen overflow-hidden bg-[#050505] text-white lg:p-3">
-      <div className="mx-auto flex h-full max-w-[1660px] overflow-hidden border-white/[0.09] bg-[#0b0b0c] shadow-panel lg:rounded-[24px] lg:border">
+      <div className="mx-auto flex h-full max-w-[1660px] overflow-hidden bg-[#0b0b0c] lg:rounded-[24px]">
         <Sidebar
           active={activePage}
           activeAppId={activeAppId}
