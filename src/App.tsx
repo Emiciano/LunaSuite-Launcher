@@ -1,4 +1,4 @@
-import { CheckCircle2, ExternalLink, FileText, Info, X } from "lucide-react";
+import { CheckCircle2, ExternalLink, FileText, Info, Sparkles, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AppCard } from "./components/AppCard";
 import { AppPage } from "./components/AppPage";
@@ -9,7 +9,7 @@ import { ReleaseNotesPanel } from "./components/ReleaseNotesPanel";
 import { SettingsPanel, type LauncherSettings } from "./components/SettingsPanel";
 import { Sidebar, type NavigationId } from "./components/Sidebar";
 import { UpdatePanel } from "./components/UpdatePanel";
-import { appRegistry, type LauncherApp } from "./data/apps";
+import { appRegistry, updateHistory, type LauncherApp } from "./data/apps";
 import { getInstalledApps, installApp, type InstallationTask } from "./services/installService";
 import { checkForUpdates, downloadUpdate, installUpdate } from "./services/updateService";
 
@@ -32,7 +32,7 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [checking, setChecking] = useState(false);
-  const [launcherVersion, setLauncherVersion] = useState("0.0.6");
+  const [launcherVersion, setLauncherVersion] = useState("0.0.7");
   const [launcherUpdateStatus, setLauncherUpdateStatus] = useState<LauncherUpdateStatus | null>(null);
   const [lastChecked, setLastChecked] = useState("Noch nicht geprüft");
   const [tasks, setTasks] = useState<InstallationTask[]>([]);
@@ -173,9 +173,6 @@ export default function App() {
           active={activePage}
           activeAppId={activeAppId}
           apps={apps}
-          installedCount={apps.filter((app) => app.installed).length}
-          updateCount={apps.filter((app) => app.updateAvailable).length}
-          lastChecked={lastChecked}
           open={menuOpen}
           onNavigate={navigate}
           onSelectApp={(appId) => setActiveAppId(appId)}
@@ -201,6 +198,7 @@ export default function App() {
                 query={query}
                 showSearch={showAppGrid}
                 showUpdateButton={activePage === "updates"}
+                hideCopy={showAppGrid}
                 checking={checking}
                 onQueryChange={setQuery}
                 onCheckUpdates={() => void checkUpdates()}
@@ -223,6 +221,7 @@ export default function App() {
                     {filteredApps.map((app) => <AppCard key={app.id} app={app} progress={tasks.find((task) => task.appId === app.id)?.progress} onAction={handleAppAction} />)}
                   </div>
                   {filteredApps.length === 0 ? <div className="mt-4 rounded-2xl border border-dashed border-white/10 px-6 py-14 text-center text-sm text-white/38">Keine Apps für diesen Filter gefunden.</div> : null}
+                  {activePage === "overview" ? <OverviewCards /> : null}
                 </>
               ) : null}
 
@@ -247,6 +246,58 @@ export default function App() {
       {toast ? <div className="fixed bottom-5 right-5 z-[80] flex max-w-sm items-center gap-3 rounded-2xl border border-white/12 bg-[#171719] px-4 py-3 text-sm shadow-2xl"><CheckCircle2 size={17} /><span>{toast}</span><button className="ml-2 text-white/40 hover:text-white" onClick={() => setToast(null)}><X size={15} /></button></div> : null}
       <LauncherUpdatePrompt />
       {releaseNotesOpen ? <ReleaseNotesModal apps={apps} onClose={() => setReleaseNotesOpen(false)} /> : null}
+    </div>
+  );
+}
+
+function OverviewCards() {
+  const versions = updateHistory.slice(0, 3);
+  return (
+    <div className="mt-8 grid gap-4 lg:grid-cols-2">
+      <section className="rounded-[22px] border border-white/[0.09] bg-[#111113] p-6 shadow-card">
+        <div className="flex items-center gap-3">
+          <span className="grid h-10 w-10 place-items-center rounded-xl bg-white text-black"><Sparkles size={18} /></span>
+          <div>
+            <h2 className="font-semibold">Neue Features</h2>
+            <p className="mt-1 text-xs text-white/38">Neu im LunaSuite Launcher</p>
+          </div>
+        </div>
+        <div className="mt-6 space-y-4 text-sm">
+          <Feature title="In-App-Updates" text="Launcher-Aktualisierungen werden direkt in den Einstellungen verwaltet." />
+          <Feature title="Zentrale App-Verwaltung" text="Installationen, Updates und Versionen bleiben an einem Ort." />
+          <Feature title="Reduzierte Übersicht" text="Mehr Fokus auf deine Apps und relevante Informationen." />
+        </div>
+      </section>
+
+      <section className="overflow-hidden rounded-[22px] border border-white/[0.09] bg-[#111113] shadow-card">
+        <div className="p-6">
+          <h2 className="font-semibold">Versionen</h2>
+          <p className="mt-1 text-xs text-white/38">Zuletzt veröffentlichte Versionen</p>
+        </div>
+        <div>
+          {versions.map((entry) => (
+            <div key={entry.version} className="flex items-center justify-between gap-5 border-t border-white/[0.06] px-6 py-4">
+              <div className="min-w-0">
+                <p className="text-sm font-medium">{entry.version}</p>
+                <p className="mt-1 truncate text-xs text-white/38">{entry.note}</p>
+              </div>
+              <span className="shrink-0 text-xs text-white/32">{entry.date}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function Feature({ title, text }: { title: string; text: string }) {
+  return (
+    <div className="flex gap-3">
+      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-white" />
+      <div>
+        <p className="font-medium">{title}</p>
+        <p className="mt-1 leading-5 text-white/40">{text}</p>
+      </div>
     </div>
   );
 }

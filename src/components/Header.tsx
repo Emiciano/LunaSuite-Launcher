@@ -7,6 +7,7 @@ type Props = {
   query: string;
   showSearch?: boolean;
   showUpdateButton?: boolean;
+  hideCopy?: boolean;
   checking: boolean;
   onQueryChange: (value: string) => void;
   onCheckUpdates: () => void;
@@ -19,14 +20,15 @@ export function Header({
   query,
   showSearch = true,
   showUpdateButton = false,
+  hideCopy = false,
   checking,
   onQueryChange,
   onCheckUpdates,
   onOpenMenu
 }: Props) {
   return (
-    <header className="mb-10 flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
-      <div className="flex min-w-0 items-start gap-3">
+    <header className={`mb-10 flex flex-col gap-6 ${hideCopy ? "items-center" : "xl:flex-row xl:items-start xl:justify-between"}`}>
+      <div className={`min-w-0 items-start gap-3 ${hideCopy ? "absolute left-5 top-6 flex lg:hidden" : "flex"}`}>
         <button
           className="mt-1 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-white/70 lg:hidden"
           onClick={onOpenMenu}
@@ -34,15 +36,15 @@ export function Header({
         >
           <Menu size={19} />
         </button>
-        <div>
+        {!hideCopy ? <div>
           <h1 className="text-3xl font-semibold tracking-[-0.045em] text-white md:text-[38px]">{title}</h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-white/46 md:text-[15px]">{subtitle}</p>
-        </div>
+        </div> : null}
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row">
+      <div className={`flex flex-col gap-3 sm:flex-row ${hideCopy ? "w-full justify-center" : ""}`}>
         {showSearch ? (
-          <label className="flex h-10 min-w-0 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.035] px-3 text-white/35 sm:w-64">
+          <label className={`flex h-10 min-w-0 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.035] px-3 text-white/35 ${hideCopy ? "w-full max-w-md" : "sm:w-64"}`}>
             <Search size={16} />
             <input
               className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/28"

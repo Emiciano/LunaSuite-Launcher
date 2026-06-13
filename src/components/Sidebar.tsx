@@ -10,7 +10,6 @@ import {
   X
 } from "lucide-react";
 import { appIcons, type LauncherApp } from "../data/apps";
-import { SystemStatus } from "./SystemStatus";
 
 export type NavigationId = "overview" | "apps" | "updates" | "downloads" | "settings" | "support";
 
@@ -18,9 +17,6 @@ type Props = {
   active: NavigationId;
   activeAppId: string | null;
   apps: LauncherApp[];
-  installedCount: number;
-  updateCount: number;
-  lastChecked: string;
   open: boolean;
   onNavigate: (id: NavigationId) => void;
   onSelectApp: (appId: string) => void;
@@ -34,7 +30,7 @@ const primaryNav = [
   { id: "downloads" as const, label: "Downloads", icon: Download }
 ];
 
-export function Sidebar({ active, activeAppId, apps, installedCount, updateCount, lastChecked, open, onNavigate, onSelectApp, onClose }: Props) {
+export function Sidebar({ active, activeAppId, apps, open, onNavigate, onSelectApp, onClose }: Props) {
   function navigate(id: NavigationId) {
     onNavigate(id);
     onClose();
@@ -92,11 +88,20 @@ export function Sidebar({ active, activeAppId, apps, installedCount, updateCount
         </div>
 
         <div className="mt-auto border-t border-white/[0.08] pt-5">
-          <div className="mb-3">
-            <SystemStatus installedCount={installedCount} updateCount={updateCount} lastChecked={lastChecked} />
+          <div className="grid grid-cols-2 gap-2">
+            <IconNavButton
+              active={active === "settings"}
+              label="Einstellungen"
+              icon={Settings}
+              onClick={() => navigate("settings")}
+            />
+            <IconNavButton
+              active={active === "support"}
+              label="Hilfe & Support"
+              icon={HelpCircle}
+              onClick={() => navigate("support")}
+            />
           </div>
-          <NavButton active={active === "settings"} label="Einstellungen" icon={Settings} onClick={() => navigate("settings")} />
-          <NavButton active={active === "support"} label="Hilfe & Support" icon={HelpCircle} onClick={() => navigate("support")} />
 
           <button className="mt-5 flex w-full items-center gap-3 border-t border-white/[0.08] px-2 pt-5 text-left">
             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-white/15 bg-white/[0.07] text-sm font-medium">AM</span>
@@ -109,6 +114,31 @@ export function Sidebar({ active, activeAppId, apps, installedCount, updateCount
         </div>
       </aside>
     </>
+  );
+}
+
+function IconNavButton({
+  active,
+  label,
+  icon: Icon,
+  onClick
+}: {
+  active: boolean;
+  label: string;
+  icon: typeof Settings;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      className={`grid h-11 place-items-center rounded-xl transition ${
+        active ? "bg-white text-black" : "bg-white/[0.045] text-white/58 hover:bg-white/[0.09] hover:text-white"
+      }`}
+      onClick={onClick}
+      aria-label={label}
+      title={label}
+    >
+      <Icon size={18} strokeWidth={1.75} />
+    </button>
   );
 }
 
