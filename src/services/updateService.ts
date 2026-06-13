@@ -1,5 +1,5 @@
 import type { LauncherApp } from "../data/appRegistry";
-import type { InstallationTask } from "./installService";
+import { installApp, type InstallationTask } from "./installService";
 
 export type UpdateCheckResult = {
   appId: string;
@@ -41,31 +41,11 @@ export async function checkForUpdates(apps: LauncherApp[]): Promise<UpdateCheckR
 }
 
 export async function downloadUpdate(app: LauncherApp, onProgress?: (task: InstallationTask) => void) {
-  const task: InstallationTask = {
-    id: `update-${app.id}-${Date.now()}`,
-    appId: app.id,
-    appName: app.name,
-    state: "queued",
-    progress: 0,
-    message: "Update zur Warteschlange hinzugefügt",
-    createdAt: new Date().toISOString()
-  };
-  onProgress?.(task);
-  for (const progress of [22, 48, 76, 100]) {
-    await new Promise((resolve) => window.setTimeout(resolve, 320));
-    task.state = progress === 100 ? "downloaded" : "downloading";
-    task.progress = progress;
-    task.message = progress === 100 ? "Update heruntergeladen" : "Update wird heruntergeladen";
-    onProgress?.({ ...task });
-  }
-  return task;
+  return installApp(app, onProgress);
 }
 
 export async function installUpdate(task: InstallationTask, onProgress?: (task: InstallationTask) => void) {
-  const installing = { ...task, state: "installing" as const, message: "Update wird installiert" };
-  onProgress?.(installing);
-  await new Promise((resolve) => window.setTimeout(resolve, 600));
-  const installed = { ...installing, state: "installed" as const, message: "Update installiert" };
+  const installed = { ...task, state: "installed" as const, progress: 100, message: "Update installiert" };
   onProgress?.(installed);
   return installed;
 }

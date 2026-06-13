@@ -26,8 +26,8 @@ function writeInstalledApps(appIds: string[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify([...new Set(appIds)]));
 }
 
-export async function installApp(app: LauncherApp, onProgress?: (task: InstallationTask) => void) {
-  const task: InstallationTask = {
+function createTask(app: LauncherApp): InstallationTask {
+  return {
     id: `${app.id}-${Date.now()}`,
     appId: app.id,
     appName: app.name,
@@ -36,6 +36,28 @@ export async function installApp(app: LauncherApp, onProgress?: (task: Installat
     message: "Zur Warteschlange hinzugefügt",
     createdAt: new Date().toISOString()
   };
+}
+
+export async function installApp(app: LauncherApp, onProgress?: (task: InstallationTask) => void) {
+  if (window.lunaSuite?.installApp && app.downloadUrl) {
+    const result = await window.lunaSuite.installApp({
+      appId: app.id,
+      appName: app.name,
+      downloadUrl: app.downloadUrl
+    });
+    writeInstalledApps([...readInstalledApps(), app.id]);
+    return {
+      id: result.taskId,
+      appId: app.id,
+      appName: app.name,
+      state: "installed" as const,
+      progress: 100,
+      message: result.installedVersion ? `Installation abgeschlossen · v${result.installedVersion}` : "Installation abgeschlossen",
+      createdAt: new Date().toISOString()
+    };
+  }
+
+  const task = createTask(app);
   onProgress?.(task);
 
   for (const step of [

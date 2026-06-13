@@ -11,7 +11,7 @@ import { Sidebar, type NavigationId } from "./components/Sidebar";
 import { UpdatePanel } from "./components/UpdatePanel";
 import { appRegistry, updateHistory, type LauncherApp } from "./data/apps";
 import { getInstalledApps, installApp, type InstallationTask } from "./services/installService";
-import { checkForUpdates, downloadUpdate, installUpdate } from "./services/updateService";
+import { checkForUpdates, downloadUpdate } from "./services/updateService";
 
 type Filter = "all" | "installed" | "updates" | "coming-soon";
 
@@ -33,7 +33,7 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [checking, setChecking] = useState(false);
-  const [launcherVersion, setLauncherVersion] = useState("0.0.16");
+  const [launcherVersion, setLauncherVersion] = useState("0.0.17");
   const [launcherUpdateStatus, setLauncherUpdateStatus] = useState<LauncherUpdateStatus | null>(null);
   const [lastChecked, setLastChecked] = useState("Noch nicht geprüft");
   const [tasks, setTasks] = useState<InstallationTask[]>([]);
@@ -70,6 +70,20 @@ export default function App() {
     void checkUpdates(false);
     void window.lunaSuite?.getLauncherVersion().then(setLauncherVersion);
     return window.lunaSuite?.onLauncherUpdateStatus(setLauncherUpdateStatus);
+  }, []);
+
+  useEffect(() => {
+    return window.lunaSuite?.onAppInstallStatus((status) => {
+      updateTask({
+        id: status.taskId,
+        appId: status.appId,
+        appName: status.appName,
+        state: status.state,
+        progress: status.progress,
+        message: status.message,
+        createdAt: new Date().toISOString()
+      });
+    });
   }, []);
 
   function showToast(message: string) {
@@ -130,17 +144,26 @@ export default function App() {
 
   async function runInstall(app: LauncherApp) {
     navigate("downloads");
-    const task = await installApp(app, updateTask);
-    setApps((current) => current.map((item) => item.id === app.id ? { ...item, installed: true, version: item.latestVersion, status: "installed" } : item));
-    showToast(`${task.appName}: Installation abgeschlossen.`);
+    try {
+      const task = await installApp(app, updateTask);
+      setApps((current) => current.map((item) => item.id === app.id ? { ...item, installed: true, version: item.latestVersion, updateAvailable: false, status: "installed" } : item));
+      showToast(`${task.appName}: Installation abgeschlossen.`);
+      void checkUpdates(false);
+    } catch (error) {
+      showToast(`${app.name}: Installation fehlgeschlagen: ${error instanceof Error ? error.message : "Unbekannter Fehler"}`);
+    }
   }
 
   async function runUpdate(app: LauncherApp) {
     navigate("downloads");
-    const downloaded = await downloadUpdate(app, updateTask);
-    const installed = await installUpdate(downloaded, updateTask);
-    setApps((current) => current.map((item) => item.id === app.id ? { ...item, installed: true, version: item.latestVersion, updateAvailable: false, status: "installed" } : item));
-    showToast(`${installed.appName}: Update installiert.`);
+    try {
+      const installed = await downloadUpdate(app, updateTask);
+      setApps((current) => current.map((item) => item.id === app.id ? { ...item, installed: true, version: item.latestVersion, updateAvailable: false, status: "installed" } : item));
+      showToast(`${installed.appName}: Update installiert.`);
+      void checkUpdates(false);
+    } catch (error) {
+      showToast(`${app.name}: Update fehlgeschlagen: ${error instanceof Error ? error.message : "Unbekannter Fehler"}`);
+    }
   }
 
   async function launchApp(app: LauncherApp) {
