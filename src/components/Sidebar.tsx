@@ -44,7 +44,7 @@ export function Sidebar({ active, activeAppId, apps, open, onNavigate, onSelectA
       >
         <div className="mb-10 flex items-center justify-between px-2">
           <button className="flex items-center gap-3" onClick={() => navigate("overview")}>
-            <img className="h-11 w-11 rounded-[13px] object-cover" src="./lunasuite-logo.png" alt="" />
+            <img className="h-14 w-14 rounded-[17px] object-cover transition-transform duration-300 hover:scale-[1.04]" src="./lunasuite-logo.png" alt="" />
             <span className="text-xl font-semibold tracking-[-0.04em]">LunaSuite</span>
           </button>
           <button className="text-white/45 lg:hidden" onClick={onClose} aria-label="Navigation schließen">
@@ -66,7 +66,7 @@ export function Sidebar({ active, activeAppId, apps, open, onNavigate, onSelectA
               return (
             <button
               key={app.id}
-              className={`flex h-10 w-full items-center gap-3 rounded-xl px-3 text-left text-sm transition ${
+              className={`flex h-10 w-full items-center gap-3 rounded-xl px-3 text-left text-sm transition-all duration-200 ${
                 activeAppId === app.id ? "bg-white/[0.09] text-white" : "text-white/55 hover:bg-white/[0.045] hover:text-white"
               }`}
               onClick={() => {
@@ -117,7 +117,7 @@ function IconNavButton({
 }) {
   return (
     <button
-      className={`grid h-10 w-10 place-items-center rounded-lg transition ${
+      className={`grid h-10 w-10 place-items-center rounded-lg transition-all duration-200 hover:-translate-y-0.5 ${
         active ? "text-white" : "text-white/45 hover:text-white"
       }`}
       onClick={onClick}
@@ -142,7 +142,7 @@ function NavButton({
 }) {
   return (
     <button
-      className={`flex h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-medium transition ${
+      className={`flex h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-medium transition-all duration-200 ${
         active ? "border border-white/[0.08] bg-white/[0.09] text-white" : "border border-transparent text-white/58 hover:bg-white/[0.045] hover:text-white"
       }`}
       onClick={onClick}

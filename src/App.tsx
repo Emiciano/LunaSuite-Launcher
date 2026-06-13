@@ -33,7 +33,7 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [checking, setChecking] = useState(false);
-  const [launcherVersion, setLauncherVersion] = useState("0.0.12");
+  const [launcherVersion, setLauncherVersion] = useState("0.0.13");
   const [launcherUpdateStatus, setLauncherUpdateStatus] = useState<LauncherUpdateStatus | null>(null);
   const [lastChecked, setLastChecked] = useState("Noch nicht geprüft");
   const [tasks, setTasks] = useState<InstallationTask[]>([]);
@@ -189,6 +189,7 @@ export default function App() {
               navigate(page);
             }}
           />
+          <div key={activeApp?.id ?? activePage} className="page-enter">
           {activeApp ? (
             <AppPage
               app={activeApp}
@@ -250,6 +251,7 @@ export default function App() {
               {activePage === "support" ? <SupportView /> : null}
             </>
           )}
+          </div>
         </main>
       </div>
 
@@ -270,9 +272,9 @@ function AccountMenu({
   onNavigate: (page: NavigationId) => void;
 }) {
   return (
-    <div className="absolute right-5 top-4 z-30 sm:right-7 lg:right-8">
+    <div className="absolute right-5 top-6 z-30 sm:right-7 lg:right-8">
       <button
-        className="flex items-center gap-2 rounded-xl px-2 py-1.5 text-left transition hover:bg-white/[0.055]"
+        className="flex h-10 items-center gap-2 rounded-xl px-2 text-left transition-all duration-200 hover:bg-white/[0.055]"
         onClick={onToggle}
         aria-expanded={open}
         aria-label="Account-Menü öffnen"
@@ -282,7 +284,7 @@ function AccountMenu({
       </button>
 
       {open ? (
-        <div className="absolute right-0 mt-2 w-64 overflow-hidden rounded-2xl border border-white/[0.09] bg-[#151517] shadow-2xl">
+        <div className="account-menu-enter absolute right-0 mt-2 w-64 origin-top-right overflow-hidden rounded-2xl border border-white/[0.09] bg-[#151517] shadow-2xl">
           <div className="border-b border-white/[0.07] px-4 py-4">
             <p className="text-sm font-medium">Alex Müller</p>
             <p className="mt-1 text-xs text-white/38">alex@lunasuite.de</p>
@@ -326,7 +328,7 @@ function OverviewCards() {
   const versions = updateHistory.slice(0, 3);
   return (
     <div className="mt-8 grid gap-4 lg:grid-cols-2">
-      <section className="rounded-[22px] border border-white/[0.09] bg-[#111113] p-6 shadow-card">
+      <section className="overview-card-enter rounded-[22px] border border-white/[0.09] bg-[#111113] p-6 shadow-card">
         <div className="flex items-center gap-3">
           <span className="grid h-10 w-10 place-items-center rounded-xl bg-white text-black"><Sparkles size={18} /></span>
           <div>
@@ -341,7 +343,7 @@ function OverviewCards() {
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-[22px] border border-white/[0.09] bg-[#111113] shadow-card">
+      <section className="overview-card-enter overflow-hidden rounded-[22px] border border-white/[0.09] bg-[#111113] shadow-card">
         <div className="p-6">
           <h2 className="font-semibold">Versionen</h2>
           <p className="mt-1 text-xs text-white/38">Zuletzt veröffentlichte Versionen</p>

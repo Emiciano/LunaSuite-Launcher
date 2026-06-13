@@ -14,7 +14,7 @@ export function AppCard({ app, progress, onAction }: Props) {
   const downloading = progress !== undefined && progress < 100;
 
   return (
-    <article className="group flex min-h-[292px] flex-col rounded-[20px] border border-white/[0.09] bg-[#111113] p-5 shadow-card transition duration-200 hover:-translate-y-0.5 hover:border-white/[0.16] hover:bg-[#141416]">
+    <article className="app-card-enter group flex min-h-[292px] flex-col rounded-[20px] border border-white/[0.09] bg-[#111113] p-5 shadow-card transition-[transform,border-color,background-color,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:border-white/[0.16] hover:bg-[#141416] hover:shadow-2xl">
       <div className="flex items-start justify-between gap-3">
         <div className="grid h-12 w-12 place-items-center rounded-2xl border border-white/10 bg-white/[0.045] text-white">
           <Icon size={24} strokeWidth={1.65} />
