@@ -1,24 +1,26 @@
 import {
-  CalendarDays,
   ChevronDown,
   Download,
-  FileText,
   HelpCircle,
   Home,
-  LayoutGrid,
-  Mail,
   Moon,
   PackageCheck,
   RefreshCw,
   Settings,
   X
 } from "lucide-react";
+import { appIcons, type LauncherApp } from "../data/apps";
+import { SystemStatus } from "./SystemStatus";
 
 export type NavigationId = "overview" | "apps" | "updates" | "downloads" | "settings" | "support";
 
 type Props = {
   active: NavigationId;
   activeAppId: string | null;
+  apps: LauncherApp[];
+  installedCount: number;
+  updateCount: number;
+  lastChecked: string;
   open: boolean;
   onNavigate: (id: NavigationId) => void;
   onSelectApp: (appId: string) => void;
@@ -32,14 +34,7 @@ const primaryNav = [
   { id: "downloads" as const, label: "Downloads", icon: Download }
 ];
 
-const apps = [
-  { id: "lunamail", label: "LunaMail", icon: Mail },
-  { id: "lunaworkspace", label: "LunaWorkspace", icon: LayoutGrid },
-  { id: "lunanotes", label: "LunaNotes", icon: FileText },
-  { id: "lunacalendar", label: "LunaCalendar", icon: CalendarDays }
-];
-
-export function Sidebar({ active, activeAppId, open, onNavigate, onSelectApp, onClose }: Props) {
+export function Sidebar({ active, activeAppId, apps, installedCount, updateCount, lastChecked, open, onNavigate, onSelectApp, onClose }: Props) {
   function navigate(id: NavigationId) {
     onNavigate(id);
     onClose();
@@ -74,6 +69,9 @@ export function Sidebar({ active, activeAppId, open, onNavigate, onSelectApp, on
         <div className="mt-8 px-3 text-xs font-medium uppercase tracking-[0.14em] text-white/28">Apps</div>
         <div className="mt-3 space-y-1">
           {apps.map((app) => (
+            (() => {
+              const Icon = appIcons[app.icon];
+              return (
             <button
               key={app.id}
               className={`flex h-10 w-full items-center gap-3 rounded-xl px-3 text-left text-sm transition ${
@@ -84,14 +82,19 @@ export function Sidebar({ active, activeAppId, open, onNavigate, onSelectApp, on
                 onClose();
               }}
             >
-              <app.icon size={17} strokeWidth={1.7} />
-              <span className="flex-1">{app.label}</span>
+              <Icon size={17} strokeWidth={1.7} />
+              <span className="flex-1">{app.name}</span>
               {app.id !== "lunamail" ? <span className="h-1.5 w-1.5 rounded-full bg-white/20" /> : null}
             </button>
+              );
+            })()
           ))}
         </div>
 
         <div className="mt-auto border-t border-white/[0.08] pt-5">
+          <div className="mb-3">
+            <SystemStatus installedCount={installedCount} updateCount={updateCount} lastChecked={lastChecked} />
+          </div>
           <NavButton active={active === "settings"} label="Einstellungen" icon={Settings} onClick={() => navigate("settings")} />
           <NavButton active={active === "support"} label="Hilfe & Support" icon={HelpCircle} onClick={() => navigate("support")} />
 

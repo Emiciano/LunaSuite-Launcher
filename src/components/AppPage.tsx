@@ -1,5 +1,5 @@
 import { ArrowLeft, CalendarClock, CheckCircle2, Download, ExternalLink, FolderOpen, Play, RefreshCw, ShieldCheck } from "lucide-react";
-import type { LauncherApp } from "../data/apps";
+import { appIcons, type LauncherApp } from "../data/apps";
 import { LauncherButton } from "./LauncherButton";
 import { StatusBadge } from "./StatusBadge";
 
@@ -14,7 +14,7 @@ type Props = {
 };
 
 export function AppPage({ app, checking, progress, onBack, onCheck, onAction, onOpenRepository }: Props) {
-  const Icon = app.icon;
+  const Icon = appIcons[app.icon];
   const downloading = progress !== undefined && progress < 100;
 
   return (
@@ -68,8 +68,8 @@ export function AppPage({ app, checking, progress, onBack, onCheck, onAction, on
         ) : null}
 
         <div className="grid gap-px bg-white/[0.06] sm:grid-cols-2 xl:grid-cols-4">
-          <InfoCard icon={CheckCircle2} label="Installierte Version" value={app.installedVersion ? `v${app.installedVersion}` : "Nicht installiert"} />
-          <InfoCard icon={CalendarClock} label="Neueste Version" value={app.version} />
+          <InfoCard icon={CheckCircle2} label="Installierte Version" value={app.version ? `v${app.version}` : "Nicht installiert"} />
+          <InfoCard icon={CalendarClock} label="Neueste Version" value={app.latestVersion ? `v${app.latestVersion}` : "Noch nicht verfügbar"} />
           <InfoCard icon={ShieldCheck} label="Update-Status" value={app.updateAvailable ? "Update verfügbar" : app.installed ? "Aktuell" : "Bereit zum Download"} />
           <InfoCard icon={FolderOpen} label="Update-Kanal" value={app.releaseChannel === "stable" ? "Stable" : "Beta"} />
         </div>
@@ -97,7 +97,7 @@ export function AppPage({ app, checking, progress, onBack, onCheck, onAction, on
               <Detail label="Letzte Veröffentlichung" value={app.lastUpdated ?? "Noch nicht verfügbar"} />
               <Detail label="Downloadgröße" value={app.size ?? "Noch nicht verfügbar"} />
             </dl>
-            <LauncherButton className="mt-5 w-full" variant="ghost" icon={<ExternalLink size={15} />} onClick={() => onOpenRepository(app.repositoryUrl)}>
+            <LauncherButton className="mt-5 w-full" variant="ghost" icon={<ExternalLink size={15} />} onClick={() => onOpenRepository(app.githubRepo)}>
               Repository öffnen
             </LauncherButton>
           </aside>

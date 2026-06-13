@@ -1,13 +1,16 @@
-import { CheckCircle2, Download, ExternalLink, FileText, HardDrive, Info, X } from "lucide-react";
+import { CheckCircle2, ExternalLink, FileText, Info, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AppCard } from "./components/AppCard";
 import { AppPage } from "./components/AppPage";
+import { DownloadManager } from "./components/DownloadManager";
 import { Header } from "./components/Header";
-import { LauncherButton } from "./components/LauncherButton";
+import { ReleaseNotesPanel } from "./components/ReleaseNotesPanel";
 import { SettingsPanel, type LauncherSettings } from "./components/SettingsPanel";
 import { Sidebar, type NavigationId } from "./components/Sidebar";
 import { UpdatePanel } from "./components/UpdatePanel";
-import { launcherApps as initialApps, updateHistory, type LauncherApp } from "./data/apps";
+import { appRegistry, type LauncherApp } from "./data/apps";
+import { getInstalledApps, installApp, type InstallationTask } from "./services/installService";
+import { checkForUpdates, downloadUpdate, installUpdate } from "./services/updateService";
 
 type Filter = "all" | "installed" | "updates" | "coming-soon";
 
@@ -23,13 +26,13 @@ const pageCopy: Record<NavigationId, { title: string; subtitle: string }> = {
 export default function App() {
   const [activePage, setActivePage] = useState<NavigationId>("overview");
   const [activeAppId, setActiveAppId] = useState<string | null>(null);
-  const [apps, setApps] = useState<LauncherApp[]>(initialApps);
+  const [apps, setApps] = useState<LauncherApp[]>(() => appRegistry.map((app) => ({ ...app })));
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [checking, setChecking] = useState(false);
   const [lastChecked, setLastChecked] = useState("Noch nicht geprüft");
-  const [downloads, setDownloads] = useState<Record<string, number>>({});
+  const [tasks, setTasks] = useState<InstallationTask[]>([]);
   const [toast, setToast] = useState<string | null>(null);
   const [releaseNotesOpen, setReleaseNotesOpen] = useState(false);
   const [settings, setSettings] = useState<LauncherSettings>({
@@ -57,6 +60,9 @@ export default function App() {
   }, [apps, filter, query]);
 
   useEffect(() => {
+    void getInstalledApps().then((installedIds) => {
+      setApps((current) => current.map((app) => installedIds.includes(app.id) ? { ...app, installed: true, status: "installed" } : app));
+    });
     void checkUpdates(false);
   }, []);
 
@@ -69,24 +75,25 @@ export default function App() {
   async function checkUpdates(showResult = true) {
     setChecking(true);
     try {
-      const status = await window.lunaSuite?.getAppStatus("lunamail");
-      if (status) {
-        setApps((current) => current.map((app) => app.id !== "lunamail" ? app : {
+      const results = await checkForUpdates(apps);
+      setApps((current) => current.map((app) => {
+        const result = results.find((item) => item.appId === app.id);
+        if (!result) return app;
+        return {
           ...app,
-          installed: status.installed,
-          installedVersion: status.installedVersion ?? undefined,
-          version: `v${status.latestVersion}`,
-          updateAvailable: status.updateAvailable,
-          status: status.updateAvailable ? "update" : status.installed ? "installed" : "available",
-          downloadUrl: status.downloadUrl,
-          releaseNotes: status.releaseNotes,
-          lastUpdated: status.publishedAt ? new Date(status.publishedAt).toLocaleDateString("de-DE") : app.lastUpdated
-        }));
-        if (showResult) {
-          showToast(status.updateAvailable ? `LunaMail v${status.latestVersion} ist verfügbar.` : "Alle installierten Apps sind aktuell.");
-        }
-      } else if (showResult) {
-        showToast("Versionsprüfung ist nur in der Desktop-App verfügbar.");
+          installed: result.installed,
+          version: result.installedVersion,
+          latestVersion: result.latestVersion,
+          updateAvailable: result.updateAvailable,
+          status: result.updateAvailable ? "update" : result.installed ? "installed" : "available",
+          downloadUrl: result.downloadUrl,
+          releaseNotes: result.releaseNotes,
+          lastUpdated: result.publishedAt ? new Date(result.publishedAt).toLocaleDateString("de-DE") : app.lastUpdated
+        };
+      }));
+      if (showResult) {
+        const available = results.filter((result) => result.updateAvailable);
+        showToast(available.length > 0 ? `${available.length} Update${available.length === 1 ? "" : "s"} verfügbar.` : "Alle installierten Apps sind aktuell.");
       }
     } catch (error) {
       if (showResult) showToast(`Versionsprüfung fehlgeschlagen: ${error instanceof Error ? error.message : "Unbekannter Fehler"}`);
@@ -96,13 +103,26 @@ export default function App() {
     }
   }
 
-  function runDownload(app: LauncherApp) {
-    if (app.downloadUrl && window.lunaSuite) {
-      void window.lunaSuite.openExternal(app.downloadUrl);
-      showToast(`${app.name}: Downloadseite geöffnet.`);
-      return;
-    }
-    setDownloads((current) => ({ ...current, [app.id]: 4 }));
+  function updateTask(task: InstallationTask) {
+    setTasks((current) => {
+      const exists = current.some((item) => item.id === task.id);
+      return exists ? current.map((item) => item.id === task.id ? task : item) : [task, ...current];
+    });
+  }
+
+  async function runInstall(app: LauncherApp) {
+    navigate("downloads");
+    const task = await installApp(app, updateTask);
+    setApps((current) => current.map((item) => item.id === app.id ? { ...item, installed: true, version: item.latestVersion, status: "installed" } : item));
+    showToast(`${task.appName}: Installation abgeschlossen.`);
+  }
+
+  async function runUpdate(app: LauncherApp) {
+    navigate("downloads");
+    const downloaded = await downloadUpdate(app, updateTask);
+    const installed = await installUpdate(downloaded, updateTask);
+    setApps((current) => current.map((item) => item.id === app.id ? { ...item, installed: true, version: item.latestVersion, updateAvailable: false, status: "installed" } : item));
+    showToast(`${installed.appName}: Update installiert.`);
   }
 
   function handleAppAction(app: LauncherApp, action: "download" | "launch" | "update" | "details") {
@@ -114,7 +134,11 @@ export default function App() {
       showToast(`${app.name} wird gestartet.`);
       return;
     }
-    runDownload(app);
+    if (action === "update") {
+      void runUpdate(app);
+    } else {
+      void runInstall(app);
+    }
   }
 
   function navigate(page: NavigationId) {
@@ -131,6 +155,10 @@ export default function App() {
         <Sidebar
           active={activePage}
           activeAppId={activeAppId}
+          apps={apps}
+          installedCount={apps.filter((app) => app.installed).length}
+          updateCount={apps.filter((app) => app.updateAvailable).length}
+          lastChecked={lastChecked}
           open={menuOpen}
           onNavigate={navigate}
           onSelectApp={(appId) => setActiveAppId(appId)}
@@ -142,7 +170,7 @@ export default function App() {
             <AppPage
               app={activeApp}
               checking={checking}
-              progress={downloads[activeApp.id]}
+              progress={tasks.find((task) => task.appId === activeApp.id)?.progress}
               onBack={() => setActiveAppId(null)}
               onCheck={() => void checkUpdates()}
               onAction={handleAppAction}
@@ -174,7 +202,7 @@ export default function App() {
                     </div>
                   </div>
                   <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                    {filteredApps.map((app) => <AppCard key={app.id} app={app} progress={downloads[app.id]} onAction={handleAppAction} />)}
+                    {filteredApps.map((app) => <AppCard key={app.id} app={app} progress={tasks.find((task) => task.appId === app.id)?.progress} onAction={handleAppAction} />)}
                   </div>
                   {filteredApps.length === 0 ? <div className="mt-4 rounded-2xl border border-dashed border-white/10 px-6 py-14 text-center text-sm text-white/38">Keine Apps für diesen Filter gefunden.</div> : null}
                   <div className="mt-8"><UpdatePanel apps={apps} checking={checking} lastChecked={lastChecked} onCheckUpdates={() => void checkUpdates()} onOpenReleaseNotes={() => setReleaseNotesOpen(true)} /></div>
@@ -182,7 +210,7 @@ export default function App() {
               ) : null}
 
               {activePage === "updates" ? <UpdatePanel apps={apps} checking={checking} lastChecked={lastChecked} onCheckUpdates={() => void checkUpdates()} onOpenReleaseNotes={() => setReleaseNotesOpen(true)} /> : null}
-              {activePage === "downloads" ? <DownloadsView apps={apps} downloads={downloads} onToast={showToast} /> : null}
+              {activePage === "downloads" ? <DownloadManager tasks={tasks} /> : null}
               {activePage === "settings" ? <SettingsPanel settings={settings} onChange={setSettings} onToast={showToast} /> : null}
               {activePage === "support" ? <SupportView /> : null}
             </>
@@ -191,22 +219,8 @@ export default function App() {
       </div>
 
       {toast ? <div className="fixed bottom-5 right-5 z-[80] flex max-w-sm items-center gap-3 rounded-2xl border border-white/12 bg-[#171719] px-4 py-3 text-sm shadow-2xl"><CheckCircle2 size={17} /><span>{toast}</span><button className="ml-2 text-white/40 hover:text-white" onClick={() => setToast(null)}><X size={15} /></button></div> : null}
-      {releaseNotesOpen ? <ReleaseNotesModal onClose={() => setReleaseNotesOpen(false)} /> : null}
+      {releaseNotesOpen ? <ReleaseNotesModal apps={apps} onClose={() => setReleaseNotesOpen(false)} /> : null}
     </div>
-  );
-}
-
-function DownloadsView({ apps, downloads, onToast }: { apps: LauncherApp[]; downloads: Record<string, number>; onToast: (message: string) => void }) {
-  const activeDownloads = Object.entries(downloads);
-  return (
-    <section className="rounded-[22px] border border-white/[0.09] bg-[#111113] shadow-card">
-      <div className="border-b border-white/[0.07] p-6"><h2 className="text-lg font-semibold">Installationen</h2><p className="mt-1 text-sm text-white/40">Aktuelle Downloads und installierte Versionen.</p></div>
-      {activeDownloads.length ? activeDownloads.map(([id, progress]) => {
-        const app = apps.find((item) => item.id === id);
-        if (!app) return null;
-        return <div key={id} className="flex flex-col gap-4 border-b border-white/[0.06] p-6 last:border-0 sm:flex-row sm:items-center"><span className="grid h-11 w-11 place-items-center rounded-xl bg-white/[0.05]"><app.icon size={20} /></span><div className="min-w-0 flex-1"><div className="flex justify-between gap-4 text-sm"><span className="font-medium">{app.name}</span><span className="text-white/42">{progress}%</span></div><div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/[0.07]"><div className="h-full bg-white" style={{ width: `${progress}%` }} /></div></div><LauncherButton variant="ghost" onClick={() => onToast(`Speicherort: ${app.name}`)} icon={<HardDrive size={15} />}>Speicherort</LauncherButton></div>;
-      }) : <div className="p-12 text-center"><Download size={24} className="mx-auto text-white/25" /><p className="mt-4 text-sm text-white/42">Noch keine Downloads in dieser Sitzung.</p></div>}
-    </section>
   );
 }
 
@@ -214,6 +228,6 @@ function SupportView() {
   return <div className="grid gap-5 md:grid-cols-3">{[[Info, "Erste Schritte", "Launcher einrichten und Apps installieren."], [FileText, "Dokumentation", "Antworten zu Updates, Versionen und Konten."], [ExternalLink, "Support kontaktieren", "Direkte Hilfe durch das LunaSuite Team."]].map(([Icon, title, text]) => { const SupportIcon = Icon as typeof Info; return <button key={title as string} className="rounded-[20px] border border-white/[0.09] bg-[#111113] p-6 text-left transition hover:border-white/[0.16] hover:bg-[#141416]"><SupportIcon size={22} /><h2 className="mt-8 font-semibold">{title as string}</h2><p className="mt-2 text-sm leading-6 text-white/42">{text as string}</p></button>; })}</div>;
 }
 
-function ReleaseNotesModal({ onClose }: { onClose: () => void }) {
-  return <div className="fixed inset-0 z-[70] grid place-items-center bg-black/75 p-4 backdrop-blur-sm" onMouseDown={onClose}><div className="w-full max-w-lg rounded-[22px] border border-white/12 bg-[#111113] p-6 shadow-2xl" onMouseDown={(event) => event.stopPropagation()}><div className="mb-5 flex items-center justify-between"><h2 className="text-xl font-semibold">Update-Verlauf</h2><button className="grid h-9 w-9 place-items-center rounded-xl text-white/45 hover:bg-white/[0.06] hover:text-white" onClick={onClose}><X size={18} /></button></div>{updateHistory.map((item) => <div key={item.version} className="flex gap-4 border-b border-white/[0.07] py-4 last:border-0"><span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-white" /><div className="min-w-0 flex-1"><div className="flex justify-between gap-4"><h3 className="font-medium">{item.version}</h3><span className="text-xs text-white/32">{item.date}</span></div><p className="mt-1 text-sm text-white/42">{item.note}</p></div></div>)}</div></div>;
+function ReleaseNotesModal({ apps, onClose }: { apps: LauncherApp[]; onClose: () => void }) {
+  return <div className="fixed inset-0 z-[70] grid place-items-center bg-black/75 p-4 backdrop-blur-sm" onMouseDown={onClose}><div className="max-h-[85vh] w-full max-w-2xl overflow-y-auto" onMouseDown={(event) => event.stopPropagation()}><ReleaseNotesPanel apps={apps} onClose={onClose} /></div></div>;
 }

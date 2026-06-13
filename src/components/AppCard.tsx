@@ -1,5 +1,5 @@
 import { Check, Download, ExternalLink, Play, RefreshCw } from "lucide-react";
-import type { LauncherApp } from "../data/apps";
+import { appIcons, type LauncherApp } from "../data/apps";
 import { LauncherButton } from "./LauncherButton";
 import { StatusBadge } from "./StatusBadge";
 
@@ -10,7 +10,7 @@ type Props = {
 };
 
 export function AppCard({ app, progress, onAction }: Props) {
-  const Icon = app.icon;
+  const Icon = appIcons[app.icon];
   const downloading = progress !== undefined && progress < 100;
 
   return (
@@ -30,7 +30,9 @@ export function AppCard({ app, progress, onAction }: Props) {
       <div className="mt-auto pt-5">
         <div className="mb-4 flex items-center justify-between gap-3 border-t border-white/[0.065] pt-4 text-xs">
           <span className="text-white/32">Version</span>
-          <span className="truncate text-right text-white/62">{app.version}</span>
+          <span className="truncate text-right text-white/62">
+            {app.comingSoon ? "Noch nicht verfügbar" : `v${app.latestVersion}`}
+          </span>
         </div>
 
         {downloading ? (

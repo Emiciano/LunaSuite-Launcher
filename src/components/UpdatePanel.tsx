@@ -42,10 +42,34 @@ export function UpdatePanel({ apps, checking, lastChecked, onCheckUpdates, onOpe
           <UpdateStat
             icon={updates.length > 0 ? RefreshCw : CheckCircle2}
             label={updates.length > 0 ? `${updates.length} Update${updates.length === 1 ? "" : "s"}` : "Alles aktuell"}
-            value={updates.length > 0 ? updates.map((app) => `${app.name} ${app.version}`).join(", ") : "Keine neuen Versionen verfügbar"}
+            value={updates.length > 0 ? updates.map((app) => `${app.name} v${app.latestVersion}`).join(", ") : "Keine neuen Versionen verfügbar"}
           />
           <UpdateStat icon={ShieldCheck} label="Installierte Apps" value={`${installed.length} erkannt`} />
           <UpdateStat icon={Clock3} label="Letzte Prüfung" value={lastChecked} />
+        </div>
+
+        <div className="border-t border-white/[0.06]">
+          {apps.filter((app) => !app.comingSoon).map((app) => (
+            <div key={app.id} className="grid gap-4 border-b border-white/[0.06] px-6 py-5 last:border-0 md:grid-cols-[1fr_150px_150px]">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-medium">{app.name}</h3>
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] ${app.updateAvailable ? "bg-white text-black" : "bg-white/[0.06] text-white/55"}`}>
+                    {app.updateAvailable ? "Update verfügbar" : app.installed ? "Aktuell" : "Nicht installiert"}
+                  </span>
+                </div>
+                <p className="mt-2 text-xs leading-5 text-white/38">{app.releaseNotes}</p>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.12em] text-white/25">Installiert</p>
+                <p className="mt-2 text-sm text-white/65">{app.version ? `v${app.version}` : "–"}</p>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.12em] text-white/25">Neueste Version</p>
+                <p className="mt-2 text-sm text-white/65">{app.latestVersion ? `v${app.latestVersion}` : "–"}</p>
+              </div>
+            </div>
+          ))}
         </div>
 
         <button
