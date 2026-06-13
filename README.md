@@ -5,7 +5,7 @@ Zentrale Oberfläche zum Installieren, Starten und Aktualisieren aller LunaSuite
 ## Aktueller Stand
 
 - LunaMail ist als aktive, installierbare App vorbereitet.
-- LunaWorkspace, LunaNotes, LunaDrive und LunaCalendar sind als Coming Soon markiert.
+- LunaWorkspace, LunaNotes und LunaCalendar sind als Coming Soon markiert.
 - Download, Installation, Update-Prüfung, Toasts und Release Notes sind als UI-Mockups umgesetzt.
 - Die App-Datenstruktur ist für spätere GitHub-Releases oder API-Daten vorbereitet.
 

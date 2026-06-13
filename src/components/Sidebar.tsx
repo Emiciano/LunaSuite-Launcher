@@ -1,7 +1,6 @@
 import {
   CalendarDays,
   ChevronDown,
-  Cloud,
   Download,
   FileText,
   HelpCircle,
@@ -19,8 +18,10 @@ export type NavigationId = "overview" | "apps" | "updates" | "downloads" | "sett
 
 type Props = {
   active: NavigationId;
+  activeAppId: string | null;
   open: boolean;
   onNavigate: (id: NavigationId) => void;
+  onSelectApp: (appId: string) => void;
   onClose: () => void;
 };
 
@@ -32,14 +33,13 @@ const primaryNav = [
 ];
 
 const apps = [
-  { label: "LunaMail", icon: Mail, active: true },
-  { label: "LunaWorkspace", icon: LayoutGrid },
-  { label: "LunaNotes", icon: FileText },
-  { label: "LunaDrive", icon: Cloud },
-  { label: "LunaCalendar", icon: CalendarDays }
+  { id: "lunamail", label: "LunaMail", icon: Mail },
+  { id: "lunaworkspace", label: "LunaWorkspace", icon: LayoutGrid },
+  { id: "lunanotes", label: "LunaNotes", icon: FileText },
+  { id: "lunacalendar", label: "LunaCalendar", icon: CalendarDays }
 ];
 
-export function Sidebar({ active, open, onNavigate, onClose }: Props) {
+export function Sidebar({ active, activeAppId, open, onNavigate, onSelectApp, onClose }: Props) {
   function navigate(id: NavigationId) {
     onNavigate(id);
     onClose();
@@ -75,13 +75,18 @@ export function Sidebar({ active, open, onNavigate, onClose }: Props) {
         <div className="mt-3 space-y-1">
           {apps.map((app) => (
             <button
-              key={app.label}
-              className="flex h-10 w-full items-center gap-3 rounded-xl px-3 text-left text-sm text-white/55 transition hover:bg-white/[0.045] hover:text-white"
-              onClick={() => navigate("apps")}
+              key={app.id}
+              className={`flex h-10 w-full items-center gap-3 rounded-xl px-3 text-left text-sm transition ${
+                activeAppId === app.id ? "bg-white/[0.09] text-white" : "text-white/55 hover:bg-white/[0.045] hover:text-white"
+              }`}
+              onClick={() => {
+                onSelectApp(app.id);
+                onClose();
+              }}
             >
               <app.icon size={17} strokeWidth={1.7} />
               <span className="flex-1">{app.label}</span>
-              {!app.active ? <span className="h-1.5 w-1.5 rounded-full bg-white/20" /> : null}
+              {app.id !== "lunamail" ? <span className="h-1.5 w-1.5 rounded-full bg-white/20" /> : null}
             </button>
           ))}
         </div>

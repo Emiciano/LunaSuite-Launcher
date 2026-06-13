@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { CalendarDays, Cloud, FileText, LayoutGrid, Mail } from "lucide-react";
+import { CalendarDays, FileText, LayoutGrid, Mail } from "lucide-react";
 
 export type AppStatus = "available" | "installed" | "update" | "coming-soon";
 export type ReleaseChannel = "stable" | "beta";
@@ -11,6 +11,7 @@ export type LauncherApp = {
   icon: LucideIcon;
   status: AppStatus;
   version: string;
+  installedVersion?: string;
   repositoryUrl: string;
   downloadUrl: string | null;
   releaseChannel: ReleaseChannel;
@@ -19,6 +20,7 @@ export type LauncherApp = {
   comingSoon: boolean;
   size?: string;
   lastUpdated?: string;
+  releaseNotes?: string;
 };
 
 export const launcherApps: LauncherApp[] = [
@@ -27,16 +29,16 @@ export const launcherApps: LauncherApp[] = [
     name: "LunaMail",
     description: "E-Mails einfach, sicher und fokussiert verwalten.",
     icon: Mail,
-    status: "update",
-    version: "v1.0.0",
+    status: "available",
+    version: "v0.9.47",
     repositoryUrl: "https://github.com/Emiciano/LunaMail",
     downloadUrl: "https://github.com/Emiciano/LunaMail/releases/latest",
     releaseChannel: "stable",
-    installed: true,
-    updateAvailable: true,
+    installed: false,
+    updateAvailable: false,
     comingSoon: false,
     size: "84,3 MB",
-    lastUpdated: "Heute, 01:24"
+    lastUpdated: "13. Juni 2026"
   },
   {
     id: "lunaworkspace",
@@ -67,20 +69,6 @@ export const launcherApps: LauncherApp[] = [
     comingSoon: true
   },
   {
-    id: "lunadrive",
-    name: "LunaDrive",
-    description: "Dateien sicher speichern, teilen und überall öffnen.",
-    icon: Cloud,
-    status: "coming-soon",
-    version: "Noch nicht verfügbar",
-    repositoryUrl: "https://github.com/Emiciano/LunaDrive",
-    downloadUrl: null,
-    releaseChannel: "stable",
-    installed: false,
-    updateAvailable: false,
-    comingSoon: true
-  },
-  {
     id: "lunacalendar",
     name: "LunaCalendar",
     description: "Termine, Fokuszeit und Aufgaben im Blick behalten.",
@@ -97,7 +85,6 @@ export const launcherApps: LauncherApp[] = [
 ];
 
 export const updateHistory = [
-  { version: "LunaMail v1.0.1", note: "Sicherheitsupdate vorbereitet", date: "Heute" },
-  { version: "LunaMail v1.0.0", note: "Erste stabile Version installiert", date: "11. Juni 2026" },
-  { version: "Launcher v0.1.0", note: "Zentrale App-Verwaltung eingerichtet", date: "10. Juni 2026" }
+  { version: "LunaMail v0.9.47", note: "Aktuell veröffentlichte stabile Version", date: "13. Juni 2026" },
+  { version: "Launcher v0.0.3", note: "Echte Versionsprüfung und eigene App-Seiten", date: "13. Juni 2026" }
 ];
