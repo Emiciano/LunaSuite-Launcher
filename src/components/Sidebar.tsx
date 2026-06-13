@@ -74,7 +74,7 @@ export function Sidebar({ active, activeAppId, apps, open, onNavigate, onSelectA
                 onClose();
               }}
             >
-              <span className="grid h-5 w-5 shrink-0 place-items-center overflow-hidden rounded-md bg-white/[0.04] text-white/70">
+              <span className="grid h-7 w-7 shrink-0 place-items-center overflow-hidden rounded-lg text-white/70">
                 {app.iconPath ? (
                   <img className="h-full w-full object-cover" src={app.iconPath} alt="" />
                 ) : (
