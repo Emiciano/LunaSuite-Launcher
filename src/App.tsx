@@ -4,6 +4,7 @@ import { AppCard } from "./components/AppCard";
 import { AppPage } from "./components/AppPage";
 import { DownloadManager } from "./components/DownloadManager";
 import { Header } from "./components/Header";
+import { LauncherUpdatePrompt } from "./components/LauncherUpdatePrompt";
 import { ReleaseNotesPanel } from "./components/ReleaseNotesPanel";
 import { SettingsPanel, type LauncherSettings } from "./components/SettingsPanel";
 import { Sidebar, type NavigationId } from "./components/Sidebar";
@@ -103,6 +104,13 @@ export default function App() {
     }
   }
 
+  async function checkAllUpdates() {
+    await Promise.allSettled([
+      checkUpdates(),
+      window.lunaSuite?.checkLauncherUpdates() ?? Promise.resolve()
+    ]);
+  }
+
   function updateTask(task: InstallationTask) {
     setTasks((current) => {
       const exists = current.some((item) => item.id === task.id);
@@ -172,7 +180,7 @@ export default function App() {
               checking={checking}
               progress={tasks.find((task) => task.appId === activeApp.id)?.progress}
               onBack={() => setActiveAppId(null)}
-              onCheck={() => void checkUpdates()}
+              onCheck={() => void checkAllUpdates()}
               onAction={handleAppAction}
               onOpenRepository={(url) => void window.lunaSuite?.openExternal(url)}
             />
@@ -185,7 +193,7 @@ export default function App() {
                 showSearch={showAppGrid}
                 checking={checking}
                 onQueryChange={setQuery}
-                onCheckUpdates={() => void checkUpdates()}
+                onCheckUpdates={() => void checkAllUpdates()}
                 onOpenMenu={() => setMenuOpen(true)}
               />
 
@@ -205,11 +213,11 @@ export default function App() {
                     {filteredApps.map((app) => <AppCard key={app.id} app={app} progress={tasks.find((task) => task.appId === app.id)?.progress} onAction={handleAppAction} />)}
                   </div>
                   {filteredApps.length === 0 ? <div className="mt-4 rounded-2xl border border-dashed border-white/10 px-6 py-14 text-center text-sm text-white/38">Keine Apps für diesen Filter gefunden.</div> : null}
-                  <div className="mt-8"><UpdatePanel apps={apps} checking={checking} lastChecked={lastChecked} onCheckUpdates={() => void checkUpdates()} onOpenReleaseNotes={() => setReleaseNotesOpen(true)} /></div>
+                  <div className="mt-8"><UpdatePanel apps={apps} checking={checking} lastChecked={lastChecked} onCheckUpdates={() => void checkAllUpdates()} onOpenReleaseNotes={() => setReleaseNotesOpen(true)} /></div>
                 </>
               ) : null}
 
-              {activePage === "updates" ? <UpdatePanel apps={apps} checking={checking} lastChecked={lastChecked} onCheckUpdates={() => void checkUpdates()} onOpenReleaseNotes={() => setReleaseNotesOpen(true)} /> : null}
+              {activePage === "updates" ? <UpdatePanel apps={apps} checking={checking} lastChecked={lastChecked} onCheckUpdates={() => void checkAllUpdates()} onOpenReleaseNotes={() => setReleaseNotesOpen(true)} /> : null}
               {activePage === "downloads" ? <DownloadManager tasks={tasks} /> : null}
               {activePage === "settings" ? <SettingsPanel settings={settings} onChange={setSettings} onToast={showToast} /> : null}
               {activePage === "support" ? <SupportView /> : null}
@@ -219,6 +227,7 @@ export default function App() {
       </div>
 
       {toast ? <div className="fixed bottom-5 right-5 z-[80] flex max-w-sm items-center gap-3 rounded-2xl border border-white/12 bg-[#171719] px-4 py-3 text-sm shadow-2xl"><CheckCircle2 size={17} /><span>{toast}</span><button className="ml-2 text-white/40 hover:text-white" onClick={() => setToast(null)}><X size={15} /></button></div> : null}
+      <LauncherUpdatePrompt />
       {releaseNotesOpen ? <ReleaseNotesModal apps={apps} onClose={() => setReleaseNotesOpen(false)} /> : null}
     </div>
   );

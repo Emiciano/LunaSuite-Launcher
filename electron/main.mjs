@@ -4,10 +4,18 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import { setupLauncherUpdater } from "./updater.mjs";
 
 const currentDirectory = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(currentDirectory, "..");
 const execFileAsync = promisify(execFile);
+let launcherUpdater;
+
+function emitLauncherUpdate(status) {
+  for (const window of BrowserWindow.getAllWindows()) {
+    if (!window.isDestroyed()) window.webContents.send("lunasuite:launcher-update-status", status);
+  }
+}
 
 function normalizeVersion(version) {
   const parts = String(version || "").trim().replace(/^v/i, "").split(".");
@@ -137,6 +145,7 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  launcherUpdater = setupLauncherUpdater({ emit: emitLauncherUpdate });
   ipcMain.handle("lunasuite:get-app-status", async (_event, appId) => {
     if (appId !== "lunamail") return null;
     return getLunaMailStatus();
@@ -146,7 +155,10 @@ app.whenReady().then(() => {
       await shell.openExternal(url);
     }
   });
+  ipcMain.handle("lunasuite:check-launcher-updates", () => launcherUpdater.checkForUpdates());
+  ipcMain.handle("lunasuite:download-launcher-update", () => launcherUpdater.downloadUpdate());
   createWindow();
+  launcherUpdater.scheduleStartupCheck();
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });

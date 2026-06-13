@@ -4,5 +4,12 @@ contextBridge.exposeInMainWorld("lunaSuite", {
   platform: process.platform,
   version: process.versions.electron,
   getAppStatus: (appId) => ipcRenderer.invoke("lunasuite:get-app-status", appId),
-  openExternal: (url) => ipcRenderer.invoke("lunasuite:open-external", url)
+  openExternal: (url) => ipcRenderer.invoke("lunasuite:open-external", url),
+  checkLauncherUpdates: () => ipcRenderer.invoke("lunasuite:check-launcher-updates"),
+  downloadLauncherUpdate: () => ipcRenderer.invoke("lunasuite:download-launcher-update"),
+  onLauncherUpdateStatus: (callback) => {
+    const listener = (_event, status) => callback(status);
+    ipcRenderer.on("lunasuite:launcher-update-status", listener);
+    return () => ipcRenderer.removeListener("lunasuite:launcher-update-status", listener);
+  }
 });

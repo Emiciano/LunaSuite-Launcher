@@ -43,6 +43,8 @@ npm run build:desktop
 
 Der installierbare Windows-Setup-Assistent wird anschließend unter `release/LunaSuite Launcher-Setup-<version>.exe` erzeugt. Der Installer legt auf Wunsch Verknüpfungen auf dem Desktop und im Startmenü an.
 
+Installierte Versionen prüfen beim Start automatisch auf neue GitHub Releases. Verfügbare Updates können direkt im Launcher bestätigt, heruntergeladen und beim automatischen Neustart installiert werden.
+
 ## Struktur
 
 ```text
