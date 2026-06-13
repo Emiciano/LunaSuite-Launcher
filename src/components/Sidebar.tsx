@@ -40,7 +40,7 @@ export function Sidebar({ active, activeAppId, apps, open, onNavigate, onSelectA
     <>
       {open ? <button className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm lg:hidden" onClick={onClose} aria-label="Navigation schließen" /> : null}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-[292px] flex-col border-r border-white/[0.08] bg-[#09090a] px-5 py-6 transition-transform duration-200 lg:static lg:z-auto lg:w-[318px] lg:translate-x-0 lg:px-6 lg:py-7 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-[292px] flex-col bg-[#09090a] px-5 py-6 transition-transform duration-200 lg:static lg:z-auto lg:w-[318px] lg:translate-x-0 lg:px-6 lg:py-7 ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -87,8 +87,8 @@ export function Sidebar({ active, activeAppId, apps, open, onNavigate, onSelectA
           ))}
         </div>
 
-        <div className="mt-auto border-t border-white/[0.08] pt-5">
-          <div className="grid grid-cols-2 gap-2">
+        <div className="mt-auto pt-5">
+          <div className="flex items-center justify-center gap-7">
             <IconNavButton
               active={active === "settings"}
               label="Einstellungen"
@@ -103,7 +103,7 @@ export function Sidebar({ active, activeAppId, apps, open, onNavigate, onSelectA
             />
           </div>
 
-          <button className="mt-5 flex w-full items-center gap-3 border-t border-white/[0.08] px-2 pt-5 text-left">
+          <button className="mt-5 flex w-full items-center gap-3 px-2 pt-3 text-left">
             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-white/15 bg-white/[0.07] text-sm font-medium">AM</span>
             <span className="min-w-0 flex-1">
               <span className="block truncate text-sm font-medium">Alex Müller</span>
@@ -130,8 +130,8 @@ function IconNavButton({
 }) {
   return (
     <button
-      className={`grid h-11 place-items-center rounded-xl transition ${
-        active ? "bg-white text-black" : "bg-white/[0.045] text-white/58 hover:bg-white/[0.09] hover:text-white"
+      className={`grid h-10 w-10 place-items-center rounded-lg transition ${
+        active ? "text-white" : "text-white/45 hover:text-white"
       }`}
       onClick={onClick}
       aria-label={label}
