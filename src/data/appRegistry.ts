@@ -10,6 +10,7 @@ export type LauncherApp = {
   name: string;
   description: string;
   icon: AppIconName;
+  iconPath: string;
   status: AppStatus;
   version: string;
   latestVersion: string;
@@ -38,6 +39,7 @@ export const appRegistry: LauncherApp[] = [
     name: "LunaMail",
     description: "E-Mails einfach, sicher und fokussiert verwalten.",
     icon: "mail",
+    iconPath: "./app-icons/lunamail.png",
     status: "available",
     version: "",
     latestVersion: "0.9.47",
@@ -57,6 +59,7 @@ export const appRegistry: LauncherApp[] = [
     name: "LunaWorkspace",
     description: "Projekte und Teams an einem ruhigen Ort organisieren.",
     icon: "workspace",
+    iconPath: "./app-icons/lunaworkspace.png",
     status: "coming-soon",
     version: "",
     latestVersion: "",
@@ -74,6 +77,7 @@ export const appRegistry: LauncherApp[] = [
     name: "LunaNotes",
     description: "Notizen, Gedanken und Ideen ohne Ablenkung festhalten.",
     icon: "notes",
+    iconPath: "./app-icons/lunanotes.png",
     status: "coming-soon",
     version: "",
     latestVersion: "",
@@ -91,6 +95,7 @@ export const appRegistry: LauncherApp[] = [
     name: "LunaCalendar",
     description: "Termine, Fokuszeit und Aufgaben im Blick behalten.",
     icon: "calendar",
+    iconPath: "./app-icons/lunacalendar.png",
     status: "coming-soon",
     version: "",
     latestVersion: "",

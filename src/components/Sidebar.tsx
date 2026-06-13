@@ -74,7 +74,13 @@ export function Sidebar({ active, activeAppId, apps, open, onNavigate, onSelectA
                 onClose();
               }}
             >
-              <Icon size={17} strokeWidth={1.7} />
+              <span className="grid h-5 w-5 shrink-0 place-items-center overflow-hidden rounded-md bg-white/[0.04] text-white/70">
+                {app.iconPath ? (
+                  <img className="h-full w-full object-cover" src={app.iconPath} alt="" />
+                ) : (
+                  <Icon size={17} strokeWidth={1.7} />
+                )}
+              </span>
               <span className="flex-1">{app.name}</span>
               {app.id !== "lunamail" ? <span className="h-1.5 w-1.5 rounded-full bg-white/20" /> : null}
             </button>

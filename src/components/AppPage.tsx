@@ -1,4 +1,4 @@
-import { ArrowLeft, CalendarClock, CheckCircle2, Download, ExternalLink, FolderOpen, Play, RefreshCw, ShieldCheck } from "lucide-react";
+import { ArrowLeft, CalendarClock, CheckCircle2, Download, FolderOpen, Play, RefreshCw, ShieldCheck } from "lucide-react";
 import { appIcons, type LauncherApp } from "../data/apps";
 import { LauncherButton } from "./LauncherButton";
 import { StatusBadge } from "./StatusBadge";
@@ -10,10 +10,9 @@ type Props = {
   onBack: () => void;
   onCheck: () => void;
   onAction: (app: LauncherApp, action: "download" | "launch" | "update") => void;
-  onOpenRepository: (url: string) => void;
 };
 
-export function AppPage({ app, checking, progress, onBack, onCheck, onAction, onOpenRepository }: Props) {
+export function AppPage({ app, checking, progress, onBack, onCheck, onAction }: Props) {
   const Icon = appIcons[app.icon];
   const downloading = progress !== undefined && progress < 100;
 
@@ -27,8 +26,12 @@ export function AppPage({ app, checking, progress, onBack, onCheck, onAction, on
       <section className="overflow-hidden rounded-[24px] border border-white/[0.09] bg-[#111113] shadow-card">
         <div className="flex flex-col gap-6 border-b border-white/[0.07] p-6 sm:p-8 lg:flex-row lg:items-start lg:justify-between">
           <div className="flex gap-5">
-            <span className="grid h-16 w-16 shrink-0 place-items-center rounded-[20px] border border-white/10 bg-white/[0.05]">
-              <Icon size={30} strokeWidth={1.6} />
+            <span className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-[20px] border border-white/10 bg-white/[0.05]">
+              {app.iconPath ? (
+                <img className="h-full w-full object-cover" src={app.iconPath} alt="" />
+              ) : (
+                <Icon size={30} strokeWidth={1.6} />
+              )}
             </span>
             <div>
               <div className="flex flex-wrap items-center gap-3">
@@ -62,8 +65,13 @@ export function AppPage({ app, checking, progress, onBack, onCheck, onAction, on
 
         {downloading ? (
           <div className="border-b border-white/[0.07] px-6 py-4 sm:px-8">
-            <div className="mb-2 flex justify-between text-xs text-white/48"><span>Download und Prüfung</span><span>{progress}%</span></div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.07]"><div className="h-full bg-white transition-all" style={{ width: `${progress}%` }} /></div>
+            <div className="mb-2 flex justify-between text-xs text-white/48">
+              <span>Download und Prüfung</span>
+              <span>{progress}%</span>
+            </div>
+            <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.07]">
+              <div className="h-full bg-white transition-all" style={{ width: `${progress}%` }} />
+            </div>
           </div>
         ) : null}
 
@@ -97,9 +105,6 @@ export function AppPage({ app, checking, progress, onBack, onCheck, onAction, on
               <Detail label="Letzte Veröffentlichung" value={app.lastUpdated ?? "Noch nicht verfügbar"} />
               <Detail label="Downloadgröße" value={app.size ?? "Noch nicht verfügbar"} />
             </dl>
-            <LauncherButton className="mt-5 w-full" variant="ghost" icon={<ExternalLink size={15} />} onClick={() => onOpenRepository(app.githubRepo)}>
-              Repository öffnen
-            </LauncherButton>
           </aside>
         </div>
       </section>
