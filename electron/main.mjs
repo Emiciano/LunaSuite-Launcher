@@ -34,6 +34,14 @@ function compareVersions(left, right) {
   return 0;
 }
 
+function getLunaMailExecutableCandidates() {
+  return [
+    path.join(process.env.LOCALAPPDATA || "", "Programs", "LunaMail", "LunaMail.exe"),
+    path.join(process.env.PROGRAMFILES || "", "LunaMail", "LunaMail.exe"),
+    path.join(process.env["PROGRAMFILES(X86)"] || "", "LunaMail", "LunaMail.exe")
+  ].filter((candidate) => candidate && existsSync(candidate));
+}
+
 async function findInstalledLunaMailVersion() {
   if (process.platform !== "win32") return null;
   const roots = [
@@ -59,11 +67,7 @@ async function findInstalledLunaMailVersion() {
     }
   }
 
-  const candidates = [
-    path.join(process.env.LOCALAPPDATA || "", "Programs", "LunaMail", "LunaMail.exe"),
-    path.join(process.env.PROGRAMFILES || "", "LunaMail", "LunaMail.exe"),
-    path.join(process.env["PROGRAMFILES(X86)"] || "", "LunaMail", "LunaMail.exe")
-  ].filter((candidate) => candidate && existsSync(candidate));
+  const candidates = getLunaMailExecutableCandidates();
 
   for (const executable of candidates) {
     try {
@@ -80,6 +84,15 @@ async function findInstalledLunaMailVersion() {
     }
   }
   return null;
+}
+
+async function launchInstalledApp(appId) {
+  if (appId !== "lunamail") throw new Error("Diese App kann noch nicht gestartet werden.");
+  const executable = getLunaMailExecutableCandidates()[0];
+  if (!executable) throw new Error("LunaMail wurde nicht gefunden. Bitte installiere die App zuerst.");
+  const errorMessage = await shell.openPath(executable);
+  if (errorMessage) throw new Error(errorMessage);
+  return { launched: true, executable };
 }
 
 async function getLunaMailStatus() {
@@ -155,6 +168,7 @@ app.whenReady().then(() => {
       await shell.openExternal(url);
     }
   });
+  ipcMain.handle("lunasuite:launch-app", async (_event, appId) => launchInstalledApp(appId));
   ipcMain.handle("lunasuite:check-launcher-updates", () => launcherUpdater.checkForUpdates());
   ipcMain.handle("lunasuite:download-launcher-update", () => launcherUpdater.downloadUpdate());
   ipcMain.handle("lunasuite:get-launcher-version", () => app.getVersion());

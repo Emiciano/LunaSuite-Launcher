@@ -33,7 +33,7 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [checking, setChecking] = useState(false);
-  const [launcherVersion, setLauncherVersion] = useState("0.0.15");
+  const [launcherVersion, setLauncherVersion] = useState("0.0.16");
   const [launcherUpdateStatus, setLauncherUpdateStatus] = useState<LauncherUpdateStatus | null>(null);
   const [lastChecked, setLastChecked] = useState("Noch nicht geprüft");
   const [tasks, setTasks] = useState<InstallationTask[]>([]);
@@ -143,13 +143,23 @@ export default function App() {
     showToast(`${installed.appName}: Update installiert.`);
   }
 
+  async function launchApp(app: LauncherApp) {
+    try {
+      if (!window.lunaSuite?.launchApp) throw new Error("App-Start ist nur in der installierten Desktop-App verfügbar.");
+      await window.lunaSuite?.launchApp(app.id);
+      showToast(`${app.name} wird gestartet.`);
+    } catch (error) {
+      showToast(`${app.name} konnte nicht gestartet werden: ${error instanceof Error ? error.message : "Unbekannter Fehler"}`);
+    }
+  }
+
   function handleAppAction(app: LauncherApp, action: "download" | "launch" | "update" | "details") {
     if (action === "details") {
       setActiveAppId(app.id);
       return;
     }
     if (action === "launch") {
-      showToast(`${app.name} wird gestartet.`);
+      void launchApp(app);
       return;
     }
     if (action === "update") {

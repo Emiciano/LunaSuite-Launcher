@@ -22,6 +22,7 @@ interface Window {
     platform: string;
     version: string;
     getAppStatus(appId: string): Promise<DesktopAppStatus | null>;
+    launchApp(appId: string): Promise<{ launched: boolean; executable: string }>;
     openExternal(url: string): Promise<void>;
     checkLauncherUpdates(): Promise<unknown>;
     downloadLauncherUpdate(): Promise<unknown>;

@@ -4,6 +4,7 @@ contextBridge.exposeInMainWorld("lunaSuite", {
   platform: process.platform,
   version: process.versions.electron,
   getAppStatus: (appId) => ipcRenderer.invoke("lunasuite:get-app-status", appId),
+  launchApp: (appId) => ipcRenderer.invoke("lunasuite:launch-app", appId),
   openExternal: (url) => ipcRenderer.invoke("lunasuite:open-external", url),
   checkLauncherUpdates: () => ipcRenderer.invoke("lunasuite:check-launcher-updates"),
   downloadLauncherUpdate: () => ipcRenderer.invoke("lunasuite:download-launcher-update"),
