@@ -32,6 +32,8 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [checking, setChecking] = useState(false);
+  const [launcherVersion, setLauncherVersion] = useState("0.0.6");
+  const [launcherUpdateStatus, setLauncherUpdateStatus] = useState<LauncherUpdateStatus | null>(null);
   const [lastChecked, setLastChecked] = useState("Noch nicht geprüft");
   const [tasks, setTasks] = useState<InstallationTask[]>([]);
   const [toast, setToast] = useState<string | null>(null);
@@ -65,6 +67,8 @@ export default function App() {
       setApps((current) => current.map((app) => installedIds.includes(app.id) ? { ...app, installed: true, status: "installed" } : app));
     });
     void checkUpdates(false);
+    void window.lunaSuite?.getLauncherVersion().then(setLauncherVersion);
+    return window.lunaSuite?.onLauncherUpdateStatus(setLauncherUpdateStatus);
   }, []);
 
   function showToast(message: string) {
@@ -104,11 +108,16 @@ export default function App() {
     }
   }
 
-  async function checkAllUpdates() {
-    await Promise.allSettled([
-      checkUpdates(),
-      window.lunaSuite?.checkLauncherUpdates() ?? Promise.resolve()
-    ]);
+  async function checkLauncherUpdates() {
+    if (!window.lunaSuite) {
+      showToast("Launcher-Updates sind nur in der installierten Desktop-App verfügbar.");
+      return;
+    }
+    try {
+      await window.lunaSuite.checkLauncherUpdates();
+    } catch (error) {
+      showToast(`Launcher-Updateprüfung fehlgeschlagen: ${error instanceof Error ? error.message : "Unbekannter Fehler"}`);
+    }
   }
 
   function updateTask(task: InstallationTask) {
@@ -180,7 +189,7 @@ export default function App() {
               checking={checking}
               progress={tasks.find((task) => task.appId === activeApp.id)?.progress}
               onBack={() => setActiveAppId(null)}
-              onCheck={() => void checkAllUpdates()}
+              onCheck={() => void checkUpdates()}
               onAction={handleAppAction}
               onOpenRepository={(url) => void window.lunaSuite?.openExternal(url)}
             />
@@ -191,9 +200,10 @@ export default function App() {
                 subtitle={copy.subtitle}
                 query={query}
                 showSearch={showAppGrid}
+                showUpdateButton={activePage === "updates"}
                 checking={checking}
                 onQueryChange={setQuery}
-                onCheckUpdates={() => void checkAllUpdates()}
+                onCheckUpdates={() => void checkUpdates()}
                 onOpenMenu={() => setMenuOpen(true)}
               />
 
@@ -213,13 +223,21 @@ export default function App() {
                     {filteredApps.map((app) => <AppCard key={app.id} app={app} progress={tasks.find((task) => task.appId === app.id)?.progress} onAction={handleAppAction} />)}
                   </div>
                   {filteredApps.length === 0 ? <div className="mt-4 rounded-2xl border border-dashed border-white/10 px-6 py-14 text-center text-sm text-white/38">Keine Apps für diesen Filter gefunden.</div> : null}
-                  <div className="mt-8"><UpdatePanel apps={apps} checking={checking} lastChecked={lastChecked} onCheckUpdates={() => void checkAllUpdates()} onOpenReleaseNotes={() => setReleaseNotesOpen(true)} /></div>
                 </>
               ) : null}
 
-              {activePage === "updates" ? <UpdatePanel apps={apps} checking={checking} lastChecked={lastChecked} onCheckUpdates={() => void checkAllUpdates()} onOpenReleaseNotes={() => setReleaseNotesOpen(true)} /> : null}
+              {activePage === "updates" ? <UpdatePanel apps={apps} checking={checking} lastChecked={lastChecked} onCheckUpdates={() => void checkUpdates()} onOpenReleaseNotes={() => setReleaseNotesOpen(true)} /> : null}
               {activePage === "downloads" ? <DownloadManager tasks={tasks} /> : null}
-              {activePage === "settings" ? <SettingsPanel settings={settings} onChange={setSettings} onToast={showToast} /> : null}
+              {activePage === "settings" ? (
+                <SettingsPanel
+                  settings={settings}
+                  launcherVersion={launcherVersion}
+                  launcherUpdateStatus={launcherUpdateStatus}
+                  onChange={setSettings}
+                  onCheckLauncherUpdates={() => void checkLauncherUpdates()}
+                  onToast={showToast}
+                />
+              ) : null}
               {activePage === "support" ? <SupportView /> : null}
             </>
           )}

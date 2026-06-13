@@ -1,5 +1,6 @@
 import { Bell, Download, FolderOpen, Languages, Power, RefreshCw } from "lucide-react";
 import type { ReleaseChannel } from "../data/apps";
+import { LauncherButton } from "./LauncherButton";
 
 export type LauncherSettings = {
   automaticUpdates: boolean;
@@ -12,11 +13,21 @@ export type LauncherSettings = {
 
 type Props = {
   settings: LauncherSettings;
+  launcherVersion: string;
+  launcherUpdateStatus: LauncherUpdateStatus | null;
   onChange: (settings: LauncherSettings) => void;
+  onCheckLauncherUpdates: () => void;
   onToast: (message: string) => void;
 };
 
-export function SettingsPanel({ settings, onChange, onToast }: Props) {
+export function SettingsPanel({
+  settings,
+  launcherVersion,
+  launcherUpdateStatus,
+  onChange,
+  onCheckLauncherUpdates,
+  onToast
+}: Props) {
   function toggle(key: "automaticUpdates" | "launchOnStartup" | "notifications") {
     onChange({ ...settings, [key]: !settings[key] });
   }
@@ -24,6 +35,20 @@ export function SettingsPanel({ settings, onChange, onToast }: Props) {
   return (
     <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
       <SettingsGroup title="Updates & System" description="Bestimme, wie sich der Launcher auf deinem Gerät verhält.">
+        <SettingRow
+          icon={RefreshCw}
+          title={`Launcher v${launcherVersion}`}
+          description={getLauncherUpdateText(launcherUpdateStatus)}
+        >
+          <LauncherButton
+            className="h-9 px-3 text-xs"
+            icon={<RefreshCw size={14} className={launcherUpdateStatus?.status === "checking" ? "animate-spin" : ""} />}
+            onClick={onCheckLauncherUpdates}
+            disabled={launcherUpdateStatus?.status === "checking" || launcherUpdateStatus?.status === "downloading"}
+          >
+            Update prüfen
+          </LauncherButton>
+        </SettingRow>
         <SettingRow icon={RefreshCw} title="Automatische Updates" description="Neue Versionen automatisch herunterladen">
           <Toggle checked={settings.automaticUpdates} onClick={() => toggle("automaticUpdates")} />
         </SettingRow>
@@ -38,7 +63,7 @@ export function SettingsPanel({ settings, onChange, onToast }: Props) {
       <SettingsGroup title="Downloads" description="Speicherort und gewünschte Update-Quelle verwalten.">
         <SettingRow icon={FolderOpen} title="Download-Ordner" description={settings.downloadFolder}>
           <button
-            className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-white/65 hover:bg-white/[0.08]"
+            className="rounded-lg bg-white px-3 py-2 text-xs font-medium text-black hover:bg-white/88"
             onClick={() => onToast("Ordnerauswahl wird später mit dem Desktop-Dateidialog verbunden.")}
           >
             Auswählen
@@ -109,11 +134,21 @@ function SettingRow({
 function Toggle({ checked, onClick }: { checked: boolean; onClick: () => void }) {
   return (
     <button
-      className={`relative h-6 w-11 rounded-full border transition ${checked ? "border-white bg-white" : "border-white/12 bg-white/[0.06]"}`}
+      className={`relative h-6 w-11 rounded-full transition ${checked ? "bg-white" : "bg-white/[0.12]"}`}
       onClick={onClick}
       aria-pressed={checked}
     >
       <span className={`absolute top-0.5 h-[18px] w-[18px] rounded-full transition ${checked ? "left-[22px] bg-black" : "left-0.5 bg-white/45"}`} />
     </button>
   );
+}
+
+function getLauncherUpdateText(status: LauncherUpdateStatus | null) {
+  if (!status) return "Launcher-Updates werden hier verwaltet";
+  if (status.status === "checking") return "Neue Version wird gesucht";
+  if (status.status === "available") return `Version ${status.version} ist verfügbar`;
+  if (status.status === "not-available") return "Installierte Version ist aktuell";
+  if (status.status === "downloading") return `Download läuft: ${Math.round(status.percent)} %`;
+  if (status.status === "downloaded") return `Version ${status.version} ist installationsbereit`;
+  return `Updateprüfung fehlgeschlagen: ${status.message}`;
 }

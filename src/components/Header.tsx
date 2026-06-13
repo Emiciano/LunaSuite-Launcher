@@ -6,6 +6,7 @@ type Props = {
   subtitle: string;
   query: string;
   showSearch?: boolean;
+  showUpdateButton?: boolean;
   checking: boolean;
   onQueryChange: (value: string) => void;
   onCheckUpdates: () => void;
@@ -17,6 +18,7 @@ export function Header({
   subtitle,
   query,
   showSearch = true,
+  showUpdateButton = false,
   checking,
   onQueryChange,
   onCheckUpdates,
@@ -50,14 +52,16 @@ export function Header({
             />
           </label>
         ) : null}
-        <LauncherButton
-          variant="secondary"
-          icon={<RefreshCw size={16} className={checking ? "animate-spin" : ""} />}
-          onClick={onCheckUpdates}
-          disabled={checking}
-        >
-          {checking ? "Wird geprüft" : "Nach Updates suchen"}
-        </LauncherButton>
+        {showUpdateButton ? (
+          <LauncherButton
+            variant="secondary"
+            icon={<RefreshCw size={16} className={checking ? "animate-spin" : ""} />}
+            onClick={onCheckUpdates}
+            disabled={checking}
+          >
+            {checking ? "Wird geprüft" : "Nach Updates suchen"}
+          </LauncherButton>
+        ) : null}
       </div>
     </header>
   );

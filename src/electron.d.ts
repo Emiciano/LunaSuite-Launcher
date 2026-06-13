@@ -25,6 +25,7 @@ interface Window {
     openExternal(url: string): Promise<void>;
     checkLauncherUpdates(): Promise<unknown>;
     downloadLauncherUpdate(): Promise<unknown>;
+    getLauncherVersion(): Promise<string>;
     onLauncherUpdateStatus(callback: (status: LauncherUpdateStatus) => void): () => void;
   };
 }

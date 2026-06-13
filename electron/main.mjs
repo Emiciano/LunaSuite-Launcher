@@ -157,6 +157,7 @@ app.whenReady().then(() => {
   });
   ipcMain.handle("lunasuite:check-launcher-updates", () => launcherUpdater.checkForUpdates());
   ipcMain.handle("lunasuite:download-launcher-update", () => launcherUpdater.downloadUpdate());
+  ipcMain.handle("lunasuite:get-launcher-version", () => app.getVersion());
   createWindow();
   launcherUpdater.scheduleStartupCheck();
   app.on("activate", () => {
