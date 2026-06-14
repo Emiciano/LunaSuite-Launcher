@@ -26,7 +26,7 @@ export function AppPage({ app, checking, progress, onBack, onCheck, onAction }: 
       <section className="overflow-hidden rounded-[24px] border border-white/[0.09] bg-[#111113] shadow-card">
         <div className="flex flex-col gap-6 border-b border-white/[0.07] p-6 sm:p-8 lg:flex-row lg:items-start lg:justify-between">
           <div className="flex gap-5">
-            <span className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-[24px]">
+            <span className="grid h-28 w-28 shrink-0 place-items-center overflow-hidden rounded-[30px] shadow-[0_22px_55px_rgba(0,0,0,0.38)]">
               {app.iconPath ? (
                 <img className="h-full w-full object-cover" src={app.iconPath} alt="" />
               ) : (

@@ -12,6 +12,7 @@ export type {
 } from "./appRegistry";
 
 export const updateHistory = [
+  { version: "Launcher v0.0.18", note: "Groessere und sichtbarere App-Logos in Karten, Sidebar und Detailseiten", date: "14. Juni 2026" },
   { version: "LunaMail v0.9.49", note: "App-Updater deaktiviert, Updates laufen zentral über den Launcher", date: "13. Juni 2026" },
   { version: "Launcher v0.0.17", note: "LunaMail Updates werden jetzt echt heruntergeladen und silent installiert", date: "13. Juni 2026" },
   { version: "LunaMail v0.9.48", note: "Einheitlicheres Layout und verbesserte Fensterbewegung", date: "13. Juni 2026" },
